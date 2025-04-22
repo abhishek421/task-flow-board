@@ -26,9 +26,15 @@ interface BoardData {
 
 interface KanbanBoardProps {
   boardId: string;
+  onEditTask?: (task: Task) => void;
+  onDeleteTask?: (task: Task) => void;
 }
 
-export const KanbanBoard: React.FC<KanbanBoardProps> = ({ boardId }) => {
+export const KanbanBoard: React.FC<KanbanBoardProps> = ({
+  boardId,
+  onEditTask,
+  onDeleteTask,
+}) => {
   const [columns, setColumns] = useState<ColumnInfo[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showModal, setShowModal] = useState(false);
@@ -105,6 +111,8 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ boardId }) => {
               columnId={col.id}
               title={col.name}
               tasks={tasksByColumn[col.id] || []}
+              onEditTask={onEditTask}
+              onDeleteTask={onDeleteTask}
             />
           ))}
         </div>
