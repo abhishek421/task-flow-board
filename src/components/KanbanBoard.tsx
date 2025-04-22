@@ -43,9 +43,9 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   useEffect(() => {
     getBoard(boardId).then(board => {
       setColumns(board.columns ?? [
-        { id: "todo", name: "To Do" },
-        { id: "inprogress", name: "In Progress" },
-        { id: "done", name: "Done" },
+        { id: "TODO", name: "To Do" },
+        { id: "INPROGRESS", name: "In Progress" },
+        { id: "DONE", name: "Done" },
       ]);
     });
   }, [boardId]);
@@ -63,9 +63,19 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     if (tasksByColumn[t.status]) tasksByColumn[t.status].push(t);
     else {
       // Unrecognized status: add to first column
-      tasksByColumn[columns[0]?.id || "todo"]?.push(t);
+      tasksByColumn[columns[0]?.id || "TODO"]?.push(t);
     }
   }
+
+  const normalizeStatus = (input: string) => {
+    if (!input) return "";
+    const status = input.toUpperCase();
+    if (status === "TODO" || status === "INPROGRESS" || status === "DONE") {
+      return status;
+    }
+    // fallback to TODO if unknown
+    return "TODO";
+  };
 
   const onDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
@@ -78,14 +88,17 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     const movedTask = tasks.find((t) => t.id === draggableId);
     if (!movedTask) return;
 
+    // Make sure destination status is normalized (uppercase)
+    const normalizedStatus = normalizeStatus(destination.droppableId);
+
     // Update UI optimistically
     let newTasks = tasks.map((t) =>
-      t.id === draggableId ? { ...t, status: destination.droppableId } : t
+      t.id === draggableId ? { ...t, status: normalizedStatus } : t
     );
     setTasks(newTasks);
 
-    // Update backend
-    await updateTask(draggableId, { ...movedTask, status: destination.droppableId });
+    // Update backend, send correct status
+    await updateTask(draggableId, { ...movedTask, status: normalizedStatus });
   };
 
   const handleTaskAdded = (task: Task) => {
