@@ -10,8 +10,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
-import { layoutList } from "lucide-react/icons";
-import { layoutList as LayoutListIcon } from "lucide-react";
+import { LayoutList } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface Board {
@@ -43,7 +42,7 @@ export function AppSidebar({ boards, selectedBoardId, onBoardSelect }: AppSideba
                     onClick={() => onBoardSelect(board.id)}
                   >
                     <span>
-                      <LayoutListIcon
+                      <LayoutList
                         size={18}
                         className="inline-block mr-2 align-middle"
                       />
