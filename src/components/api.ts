@@ -17,6 +17,16 @@ export async function getBoard(boardId: string) {
   return res.json();
 }
 
+export async function createBoard(data: { name: string }) {
+  const res = await fetch(`${BASE}/api/boards`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to create board");
+  return res.json();
+}
+
 export async function getTasks(boardId: string) {
   const res = await fetch(`${BASE}/api/tasks/board/${boardId}`);
   if (!res.ok) throw new Error("Failed to fetch tasks");
