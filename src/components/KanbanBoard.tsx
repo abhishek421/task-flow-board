@@ -3,7 +3,8 @@ import React, { useEffect, useState } from "react";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import { Column } from "./Column";
 import { AddTaskModal } from "./AddTaskModal";
-import { getBoard, getTasks, updateTask } from "./api";
+import { getBoard, getTasks, updateTask, deleteTask } from "./api";
+import { toast } from "sonner";
 
 interface Task {
   id: string;
@@ -105,6 +106,20 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     setTasks([task, ...tasks]);
   };
 
+  const handleDeleteTask = async (task: Task) => {
+    try {
+      // Delete from backend first
+      await deleteTask(task.id);
+      
+      // Then update UI after successful deletion
+      setTasks(tasks.filter(t => t.id !== task.id));
+      toast.success("Task deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete task");
+      console.error("Delete task error:", error);
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-5">
@@ -125,7 +140,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
               title={col.name}
               tasks={tasksByColumn[col.id] || []}
               onEditTask={onEditTask}
-              onDeleteTask={onDeleteTask}
+              onDeleteTask={handleDeleteTask}
             />
           ))}
         </div>

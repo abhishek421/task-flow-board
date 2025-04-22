@@ -27,6 +27,14 @@ export async function createBoard(data: { name: string }) {
   return res.json();
 }
 
+export async function deleteBoard(boardId: string) {
+  const res = await fetch(`${BASE}/api/boards/${boardId}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error("Failed to delete board");
+  return res.json();
+}
+
 export async function getTasks(boardId: string) {
   const res = await fetch(`${BASE}/api/tasks/board/${boardId}`);
   if (!res.ok) throw new Error("Failed to fetch tasks");
@@ -50,5 +58,13 @@ export async function updateTask(id: string, data: any) {
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Failed to update task");
+  return res.json();
+}
+
+export async function deleteTask(id: string) {
+  const res = await fetch(`${BASE}/api/tasks/${id}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error("Failed to delete task");
   return res.json();
 }

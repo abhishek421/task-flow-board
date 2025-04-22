@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { BoardSwitcher } from "../components/BoardSwitcher";
 import { KanbanBoard } from "../components/KanbanBoard";
 import { CreateBoardModal } from "../components/CreateBoardModal";
-import { getBoards } from "../components/api";
+import { getBoards, deleteBoard } from "../components/api";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Edit, Trash2, ChevronRight } from "lucide-react";
 import {
@@ -16,11 +16,24 @@ import {
 } from "@/components/ui/breadcrumb";
 import { AppSidebar } from "../components/AppSidebar";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 export default function Index() {
   const [boards, setBoards] = useState<{ id: string; name: string }[]>([]);
   const [selectedBoard, setSelectedBoard] = useState<string>("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [boardToDelete, setBoardToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     getBoards().then((data) => {
@@ -34,14 +47,40 @@ export default function Index() {
     setSelectedBoard(newBoard.id);
   };
 
-  // Simple edit/delete handlers
+  // Simple edit handler
   const handleEditBoard = (boardId: string) => {
     alert(`Edit board: ${boardId}`);
   };
-  const handleDeleteBoard = (boardId: string) => {
-    if (window.confirm("Are you sure you want to delete this board?")) {
-      setBoards(boards.filter((b) => b.id !== boardId));
-      setSelectedBoard(boards.length > 1 ? boards.find(b => b.id !== boardId)?.id || "" : "");
+
+  // Delete board handler with confirmation dialog
+  const openDeleteConfirmation = (boardId: string) => {
+    setBoardToDelete(boardId);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteBoard = async () => {
+    if (!boardToDelete) return;
+    
+    try {
+      // Delete from backend
+      await deleteBoard(boardToDelete);
+      
+      // Update UI
+      const newBoards = boards.filter((b) => b.id !== boardToDelete);
+      setBoards(newBoards);
+      
+      // If deleted the selected board, select another one
+      if (boardToDelete === selectedBoard) {
+        setSelectedBoard(newBoards.length > 0 ? newBoards[0].id : "");
+      }
+      
+      toast.success("Board deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete board");
+      console.error("Delete board error:", error);
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setBoardToDelete(null);
     }
   };
 
@@ -107,7 +146,7 @@ export default function Index() {
                   <Button
                     size="icon"
                     variant="outline"
-                    onClick={() => handleDeleteBoard(selectedBoardObj.id)}
+                    onClick={() => openDeleteConfirmation(selectedBoardObj.id)}
                     title="Delete Board"
                   >
                     <Trash2 className="w-4 h-4 text-orange-500" />
@@ -120,7 +159,7 @@ export default function Index() {
                 <KanbanBoard
                   boardId={selectedBoard}
                   onEditTask={(task) => alert("Edit Task: " + task.title)}
-                  onDeleteTask={(task) => alert("Delete Task: " + task.title)}
+                  onDeleteTask={(task) => console.log("Delete Task: " + task.title)} // This is already handled in KanbanBoard
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center mt-20 bg-white p-10 rounded-lg shadow max-w-md mx-auto">
@@ -140,6 +179,23 @@ export default function Index() {
               onClose={() => setIsCreateModalOpen(false)}
               onBoardCreated={handleBoardCreated}
             />
+
+            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete the board and all its tasks. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDeleteBoard} className="bg-red-600 hover:bg-red-700">
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </SidebarInset>
       </div>
