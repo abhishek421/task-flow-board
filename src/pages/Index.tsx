@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { BoardSwitcher } from "../components/BoardSwitcher";
 import { KanbanBoard } from "../components/KanbanBoard";
@@ -27,6 +26,7 @@ import {
   AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 export default function Index() {
   const [boards, setBoards] = useState<{ id: string; name: string }[]>([]);
@@ -101,7 +101,9 @@ export default function Index() {
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem>
-                    <BreadcrumbLink href="/">Home</BreadcrumbLink>
+                    <BreadcrumbLink asChild>
+                      <Link to="/">Home</Link>
+                    </BreadcrumbLink>
                   </BreadcrumbItem>
                   {selectedBoardObj && (
                     <>
@@ -159,7 +161,7 @@ export default function Index() {
                 <KanbanBoard
                   boardId={selectedBoard}
                   onEditTask={(task) => alert("Edit Task: " + task.title)}
-                  onDeleteTask={(task) => console.log("Delete Task: " + task.title)} // This is already handled in KanbanBoard
+                  onDeleteTask={(task) => console.log("Delete Task: " + task.title)}
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center mt-20 bg-white p-10 rounded-lg shadow max-w-md mx-auto">
