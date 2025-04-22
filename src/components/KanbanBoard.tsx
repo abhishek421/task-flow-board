@@ -44,7 +44,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     getBoard(boardId).then(board => {
       setColumns(board.columns ?? [
         { id: "TODO", name: "To Do" },
-        { id: "INPROGRESS", name: "In Progress" },
+        { id: "IN_PROGRESS", name: "In Progress" },
         { id: "DONE", name: "Done" },
       ]);
     });
@@ -70,7 +70,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   const normalizeStatus = (input: string) => {
     if (!input) return "";
     const status = input.toUpperCase();
-    if (status === "TODO" || status === "INPROGRESS" || status === "DONE") {
+    if (status === "TODO" || status === "IN_PROGRESS" || status === "DONE") {
       return status;
     }
     // fallback to TODO if unknown
