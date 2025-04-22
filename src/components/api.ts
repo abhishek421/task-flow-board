@@ -3,7 +3,7 @@
  * Simple API utility to fetch boards and tasks from user backend.
  * Make sure to set `VITE_API_BASE_URL` in your .env for CORS proxy if needed.
  */
-const BASE = import.meta.env.VITE_API_BASE_URL || "";
+const BASE =  "http://localhost:5001";
 
 export async function getBoards() {
   const res = await fetch(`${BASE}/api/boards`);
